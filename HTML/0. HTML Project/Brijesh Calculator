@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProCalc - Professional Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .calculator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: #4cc9f0;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(to right, #4cc9f0, #f72585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: right;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .expression {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            min-height: 24px;
+            margin-bottom: 5px;
+            text-align: right;
+            word-wrap: break-word;
+        }
+
+        .result {
+            font-size: 36px;
+            font-weight: 300;
+            color: #fff;
+            min-height: 45px;
+            text-align: right;
+            word-wrap: break-word;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 20px;
+            padding: 15px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .operator {
+            background: rgba(76, 201, 240, 0.2);
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            font-weight: 500;
+        }
+
+        .operator:hover {
+            background: rgba(76, 201, 240, 0.3);
+        }
+
+        .equals {
+            background: linear-gradient(to right, #4cc9f0, #4361ee);
+            grid-column: span 2;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .equals:hover {
+            background: linear-gradient(to right, #5dc7f7, #5270f9);
+            transform: translateY(-2px);
+        }
+
+        .equals:active {
+            transform: translateY(0);
+        }
+
+        .clear {
+            background: rgba(247, 37, 133, 0.2);
+            border: 1px solid rgba(247, 37, 133, 0.3);
+        }
+
+        .clear:hover {
+            background: rgba(247, 37, 133, 0.3);
+        }
+
+        .function {
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 18px;
+        }
+
+        .function:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .history-panel {
+            margin-top: 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history-title {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .clear-history {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .clear-history:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 480px) {
+            .calculator-container {
+                padding: 20px;
+                max-width: 360px;
+            }
+            
+            .result {
+                font-size: 32px;
+            }
+            
+            button {
+                font-size: 18px;
+                padding: 12px 0;
+            }
+        }
+
+        /* Light theme */
+        .light-theme {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        }
+        
+        .light-theme .calculator-container {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .light-theme .logo h1 {
+            background: linear-gradient(to right, #4361ee, #3a0ca3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .light-theme .display {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .light-theme .expression {
+            color: rgba(0, 0, 0, 0.6);
+        }
+        
+        .light-theme .result {
+            color: #1a1a2e;
+        }
+        
+        .light-theme button {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1a1a2e;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .light-theme .operator {
+            background: rgba(67, 97, 238, 0.15);
+            border: 1px solid rgba(67, 97, 238, 0.3);
+            color: #4361ee;
+        }
+        
+        .light-theme .equals {
+            background: linear-gradient(to right, #4361ee, #3a0ca3);
+            color: white;
+        }
+        
+        .light-theme .clear {
+            background: rgba(247, 37, 133, 0.15);
+            border: 1px solid rgba(247, 37, 133, 0.3);
+            color: #f72585;
+        }
+        
+        .light-theme .function {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1a1a2e;
+        }
+        
+        .light-theme .history-panel {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .light-theme .history-title {
+            color: rgba(0, 0, 0, 0.6);
+        }
+        
+        .light-theme .history-item {
+            color: rgba(0, 0, 0, 0.7);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .light-theme .clear-history {
+            color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .light-theme .clear-history:hover {
+            color: #1a1a2e;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator-header">
+            <div class="logo">
+                <i class="fas fa-calculator"></i>
+                <h1>Brijesh Calculator</h1>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        
+        <div class="display">
+            <div class="expression" id="expression"></div>
+            <div class="result" id="result">0</div>
+        </div>
+        
+        <div class="buttons-grid">
+            <button class="function" onclick="clearEntry()">CE</button>
+            <button class="clear" onclick="clearAll()">AC</button>
+            <button class="function" onclick="backspace()"><i class="fas fa-backspace"></i></button>
+            <button class="operator" onclick="appendOperator('/')">÷</button>
+            
+            <button class="function" onclick="appendFunction('sqrt')">√</button>
+            <button class="function" onclick="appendFunction('square')">x²</button>
+            <button class="function" onclick="appendFunction('reciprocal')">1/x</button>
+            <button class="operator" onclick="appendOperator('*')">×</button>
+            
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="appendOperator('-')">-</button>
+            
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="appendOperator('+')">+</button>
+            
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="function" onclick="toggleSign()">+/-</button>
+            
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="appendDecimal()">.</button>
+            <button class="function" onclick="appendFunction('percent')">%</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+        
+        <div class="history-panel">
+            <div class="history-title">
+                <span>Calculation History</span>
+                <button class="clear-history" onclick="clearHistory()">Clear</button>
+            </div>
+            <ul class="history-list" id="historyList">
+                <!-- History items will be added here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let currentExpression = '';
+        let calculationHistory = [];
+        let isDarkTheme = true;
+
+        // DOM elements
+        const resultElement = document.getElementById('result');
+        const expressionElement = document.getElementById('expression');
+        const historyListElement = document.getElementById('historyList');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('light-theme', !isDarkTheme);
+            themeToggle.innerHTML = isDarkTheme ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        });
+
+        // Update display
+        function updateDisplay() {
+            resultElement.textContent = currentInput;
+            expressionElement.textContent = currentExpression;
+        }
+
+        // Append number
+        function appendNumber(number) {
+            if (currentInput === '0' || currentInput === 'Error') {
+                currentInput = number;
+            } else {
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+
+        // Append decimal
+        function appendDecimal() {
+            if (currentInput.includes('.')) return;
+            if (currentInput === '0' || currentInput === 'Error') {
+                currentInput = '0.';
+            } else {
+                currentInput += '.';
+            }
+            updateDisplay();
+        }
+
+        // Append operator
+        function appendOperator(operator) {
+            if (currentInput === 'Error') return;
+            
+            if (currentExpression === '') {
+                currentExpression = currentInput + ' ' + operator + ' ';
+            } else {
+                currentExpression += currentInput + ' ' + operator + ' ';
+            }
+            
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        // Append function
+        function appendFunction(func) {
+            if (currentInput === 'Error') return;
+            
+            switch(func) {
+                case 'sqrt':
+                    currentInput = Math.sqrt(parseFloat(currentInput)).toString();
+                    break;
+                case 'square':
+                    currentInput = (parseFloat(currentInput) ** 2).toString();
+                    break;
+                case 'reciprocal':
+                    currentInput = (1 / parseFloat(currentInput)).toString();
+                    break;
+                case 'percent':
+                    currentInput = (parseFloat(currentInput) / 100).toString();
+                    break;
+            }
+            
+            updateDisplay();
+        }
+
+        // Toggle sign
+        function toggleSign() {
+            if (currentInput === 'Error') return;
+            
+            currentInput = (parseFloat(currentInput) * -1).toString();
+            updateDisplay();
+        }
+
+        // Backspace
+        function backspace() {
+            if (currentInput === 'Error') {
+                currentInput = '0';
+            } else if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        // Clear entry
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        // Clear all
+        function clearAll() {
+            currentInput '
+            /lo;p'= '0';
+            currentExpression = '';
+            updateDisplay();
+        }
+
+        // Calculate result
+        function calculate() {
+            if (currentInput === 'Error') return;
+            
+            try {
+                const expression = currentExpression + currentInput;
+                if (expression.trim() === '') return;
+                
+                // Replace × with * and ÷ with / for evaluation
+                const sanitizedExpression = expression
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/');
+                
+                const result = eval(sanitizedExpression);
+                
+                // Add to history
+                calculationHistory.unshift({
+                    expression: expression,
+                    result: result
+                });
+                
+                // Update history display
+                updateHistory();
+                
+                // Update current values
+                currentInput = result.toString();
+                currentExpression = '';
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+            }
+        }
+
+        // Update history display
+        function updateHistory() {
+            historyListElement.innerHTML = '';
+            
+            calculationHistory.slice(0, 10).forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.textContent = `${item.expression} = ${item.result}`;
+                historyListElement.appendChild(li);
+            });
+        }
+
+        // Clear history
+        function clearHistory() {
+            calculationHistory = [];
+            historyListElement.innerHTML = '';
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+
+</body></html>
